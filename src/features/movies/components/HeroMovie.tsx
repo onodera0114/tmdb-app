@@ -1,59 +1,88 @@
 "use client"
 
-import { Box, Typography, Button, Container } from "@mui/material"
-import { useTrendingMovies } from "../hooks/useTrendingMovies"
+import { Box, Typography, Button } from "@mui/material";
+import { Movie } from "@/features/movies/types/movie";
+import { useTrendingMovies } from "@/features/movies/hooks/useTrendingMovies";
+import { useState, useEffect } from "react";
 
-export function HeroMovie() {
-  const { data, isLoading, error } = useTrendingMovies()
+export default function HeroMovie() {
+  const { data } = useTrendingMovies()
+  const [movie, setMovie] = useState<Movie | null>(null)
 
-  if (isLoading) return <div>Loading...</div>
+  useEffect(() => {
+    if (data?.results?.length) {
+      // ランダムに1作品選ぶ
+      const randomIndex = Math.floor(Math.random() * data.results.length)
+      setMovie(data.results[randomIndex])
+    }
+  }, [data])
 
-  if (error || !data) return <div>Error loading movie</div>
+  if (!movie) return null
 
-  const movie = data.results[0]
-
-  const backdropUrl =
-    "https://image.tmdb.org/t/p/original" + movie.backdrop_path
+  const backdropUrl = "https://image.tmdb.org/t/p/original" + movie.backdrop_path
 
   return (
     <Box
       sx={{
         position: "relative",
-        height: 500,
+        width: "100%",
+        height: { xs: 400, md: 600 },
+        color: "white",
         backgroundImage: `url(${backdropUrl})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         display: "flex",
-        alignItems: "center",
-        color: "white",
+        alignItems: "flex-end",
+        p: { xs: 3, md: 6 },
       }}
     >
-      {/* dark overlay */}
+      {/* グラデーションオーバーレイ */}
       <Box
         sx={{
           position: "absolute",
           inset: 0,
-          background: "rgba(0,0,0,0.5)",
+          background: "linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1))",
+          zIndex: 1,
         }}
       />
 
-      <Container sx={{ position: "relative", zIndex: 1 }}>
-        <Typography variant="h3" gutterBottom>
+      {/* テキスト & ボタン */}
+      <Box sx={{ position: "relative", zIndex: 2, maxWidth: { xs: "100%", md: "50%" } }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold", mb: 2 }}>
           {movie.title}
         </Typography>
 
-        <Typography variant="body1" sx={{ maxWidth: 600 }}>
+        <Typography
+          variant="body1"
+          sx={{
+            mb: 3,
+            display: "-webkit-box",
+            overflow: "hidden",
+            WebkitLineClamp: 4,
+            WebkitBoxOrient: "vertical",
+          }}
+        >
           {movie.overview}
         </Typography>
 
-        <Typography sx={{ mt: 1 }}>
-          ⭐ {movie.vote_average}
-        </Typography>
+        <Box sx={{ display: "flex", gap: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ px: 3 }}
+          >
+            ▶ Play
+          </Button>
 
-        <Button variant="contained" sx={{ mt: 2 }}>
-          Details
-        </Button>
-      </Container>
+          <Button
+            variant="outlined"
+            color="inherit"
+            sx={{ px: 3, borderColor: "white", color: "white" }}
+          >
+            Details
+          </Button>
+        </Box>
+      </Box>
     </Box>
   )
 }
