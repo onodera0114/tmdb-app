@@ -4,7 +4,7 @@ const API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY;
 
 export async function fetchTMDB<T>(endpoint: string): Promise<T> {
   const res = await fetch(
-    `${BASE_URL}${endpoint}?api_key=${API_KEY}`
+    `${BASE_URL}${endpoint}?api_key=${API_KEY}&language=ja-JP`
   )
 
   if (!res.ok) {
